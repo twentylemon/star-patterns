@@ -19,6 +19,8 @@ void parseXML(const std::string file) {
 // glut display function
 void displayFunc() {
     glClear(GL_COLOR_BUFFER_BIT);
+    glColor3d(1.0, 1.0, 1.0);
+    g.tilings["6.6.6"].draw();
     glFlush();
 }
 
@@ -41,7 +43,7 @@ int main(int argc, char** argv) {
 
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glOrtho(0, 100, 0, 100, 0, 1);
+    glOrtho(-10, 10, -10, 10, 0, 1);
 
     glutDisplayFunc(displayFunc);
 

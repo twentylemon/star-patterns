@@ -22,8 +22,8 @@ void Tile::parseShape(const ptree& tile) {
         const double pi = boost::math::constants::pi<double>();
         for (int i = 0; i < n; i++) {
             verticies_.emplace_back();
-            verticies_[i][0] = std::cos(2.0*pi*i/n);
-            verticies_[i][1] = std::sin(2.0*pi*i/n);
+            verticies_.back()[0] = std::cos(2.0*pi*i/n)*std::cos(pi/n) - std::sin(2.0*pi*i/n)*std::sin(pi/n);
+            verticies_.back()[1] = std::cos(2.0*pi*i/n)*std::sin(pi/n) + std::sin(2.0*pi*i/n)*std::cos(pi/n);
         }
     }
     else if (type == "polygon") {

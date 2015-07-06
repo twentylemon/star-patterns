@@ -2,6 +2,7 @@
 #ifndef TILING_H
 #define TILING_H
 
+#include <GL/glut.h>
 #include <boost/property_tree/ptree.hpp>
 #include <lemon/collections.h>
 
@@ -18,6 +19,8 @@ public:
 
     // returns the name of this tiling
     const lemon::String& name() const;
+
+    void draw() const;
 
     // returns true if the two tilings are equal
     bool operator==(const Tiling& rhs) const;

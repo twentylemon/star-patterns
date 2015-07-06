@@ -14,7 +14,7 @@
 
 typedef struct glob {
 
-    lemon::Map<lemon::String, Tiling> tilings;
+    lemon::Map<std::string, Tiling> tilings;
 
     int glutWindow;     // glut window id
     int windowWidth;    // width of glut window
