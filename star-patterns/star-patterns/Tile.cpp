@@ -3,6 +3,7 @@
 #include "Tile.h"
 
 using boost::property_tree::ptree;
+static const double pi = boost::math::constants::pi<double>();
 
 Tile::Tile()
 {
@@ -19,11 +20,11 @@ void Tile::parseShape(const ptree& tile) {
     std::string type = shape.get<std::string>("<xmlattr>.type");
     if (type == "regular") {
         const int n = shape.get<int>("<xmlattr>.sides");
-        const double pi = boost::math::constants::pi<double>();
-        for (int i = 0; i < n; i++) {
-            verticies_.emplace_back();
-            verticies_.back()[0] = std::cos(2.0*pi*i/n)*std::cos(pi/n) - std::sin(2.0*pi*i/n)*std::sin(pi/n);
-            verticies_.back()[1] = std::cos(2.0*pi*i/n)*std::sin(pi/n) + std::sin(2.0*pi*i/n)*std::cos(pi/n);
+        const double theta = 2.0*pi / n;
+        const double phi = 2.0 * std::tan(theta / 2.0);
+        addVertex(1.0, -phi/2.0);
+        for (int i = 0; i < n - 1; i++) {
+            addVertex(lastX() + phi*std::cos(pi/2.0 + theta*i), lastY() + phi*std::sin(pi/2.0 + theta*i));
         }
     }
     else if (type == "polygon") {
@@ -42,15 +43,29 @@ void Tile::parseTransform(const ptree& tile) {
         if (v.first == "transform") {
             transforms_.emplace_back(0);    // fill with 0
             transforms_.back()[0] = v.second.get<double>("<xmlattr>.a");
-            transforms_.back()[1] = v.second.get<double>("<xmlattr>.b");
-            transforms_.back()[3] = v.second.get<double>("<xmlattr>.c");
-            transforms_.back()[4] = v.second.get<double>("<xmlattr>.d");
+            transforms_.back()[4] = v.second.get<double>("<xmlattr>.b");
+            transforms_.back()[12] = v.second.get<double>("<xmlattr>.c");
+            transforms_.back()[1] = v.second.get<double>("<xmlattr>.d");
             transforms_.back()[5] = v.second.get<double>("<xmlattr>.e");
-            transforms_.back()[7] = v.second.get<double>("<xmlattr>.f");
+            transforms_.back()[13] = v.second.get<double>("<xmlattr>.f");
             transforms_.back()[10] = 1.0;
             transforms_.back()[15] = 1.0;
         }
     }
+}
+
+void Tile::addVertex(double x, double y) {
+    verticies_.emplace_back();
+    verticies_.back()[0] = x;
+    verticies_.back()[1] = y;
+}
+
+double Tile::lastX() const {
+    return verticies_.back()[0];
+}
+
+double Tile::lastY() const {
+    return verticies_.back()[1];
 }
 
 lemon::Vector<lemon::Array<double, 2>>& Tile::verticies() {
@@ -69,8 +84,32 @@ const lemon::Vector<lemon::Array<double, 16>>& Tile::transforms() const {
     return transforms_;
 }
 
-
-
 bool Tile::operator==(const Tile& rhs) const {
     return verticies_ == rhs.verticies_ && transforms_ == rhs.transforms_;
+}
+
+void Tile::draw() const {
+    transforms_.each([this](const lemon::Array<double, 16>& matrix){
+        glPushMatrix();
+        glMultMatrixd(matrix.data());
+        glBegin(GL_LINE_LOOP);
+        verticies_.each([](const lemon::Array<double, 2>& point){
+            glVertex2dv(point.data());
+        });
+        glEnd();
+        glPopMatrix();
+    });
+}
+
+std::ostream& operator<<(std::ostream& svg, const Tile& tile) {
+    tile.transforms().each([&](const lemon::Array<double, 16>& matrix){
+        svg << "<polygon transform=\"matrix(" <<
+            matrix[0] << " " << matrix[1] << " " << matrix[4] << " " << matrix[5] << " " << matrix[12] << " " << matrix[13] <<
+            ")\" points=\"";
+        tile.verticies().each([&svg](const lemon::Array<double, 2>& point){
+            svg << point[0] << "," << point[1] << " ";
+        });
+        svg << "\"/>" << std::endl;
+    });
+    return svg;
 }

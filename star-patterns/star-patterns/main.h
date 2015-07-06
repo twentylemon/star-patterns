@@ -12,13 +12,15 @@
 
 #include "Tiling.h"
 
-typedef struct glob {
+typedef struct global {
 
     lemon::Map<std::string, Tiling> tilings;
 
     int glutWindow;     // glut window id
     int windowWidth;    // width of glut window
     int windowHeight;   // height of glut window
+    int width;          // width of the ortho
+    int height;         // height of the ortho
 } Global;
 
 extern Global g;
