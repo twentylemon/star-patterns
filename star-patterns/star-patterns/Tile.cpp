@@ -16,7 +16,7 @@ Tile::Tile(const ptree& tile)
 
 void Tile::parseShape(const ptree& tile) {
     const ptree& shape = tile.get_child("shape");
-    lemon::String type = shape.get<lemon::String>("<xmlattr>.type");
+    std::string type = shape.get<std::string>("<xmlattr>.type");
     if (type == "regular") {
         const int n = shape.get<int>("<xmlattr>.sides");
         const double pi = boost::math::constants::pi<double>();
@@ -27,28 +27,30 @@ void Tile::parseShape(const ptree& tile) {
         }
     }
     else if (type == "polygon") {
-        const ptree& verts = shape.get_child("vertex");
-        std::for_each(verts.begin(), verts.end(), [this](const ptree::value_type& v){
-            verticies_.emplace_back();
-            verticies_.back()[0] = v.second.get<double>("<xmlattr>.x");
-            verticies_.back()[1] = v.second.get<double>("<xmlattr>.y");
-        });
+        for (const ptree::value_type& v : shape) {
+            if (v.first == "vertex") {
+                verticies_.emplace_back();
+                verticies_.back()[0] = v.second.get<double>("<xmlattr>.x");
+                verticies_.back()[1] = v.second.get<double>("<xmlattr>.y");
+            }
+        }
     }
 }
 
 void Tile::parseTransform(const ptree& tile) {
-    ptree transform = tile.get_child("transform");
-    std::for_each(transform.begin(), transform.end(), [this](const ptree::value_type& val){
-        transforms_.emplace_back(0);    // fill with 0
-        transforms_.back()[0] = val.second.get<double>("<xmlattr>.a");
-        transforms_.back()[1] = val.second.get<double>("<xmlattr>.b");
-        transforms_.back()[3] = val.second.get<double>("<xmlattr>.c");
-        transforms_.back()[4] = val.second.get<double>("<xmlattr>.d");
-        transforms_.back()[5] = val.second.get<double>("<xmlattr>.e");
-        transforms_.back()[7] = val.second.get<double>("<xmlattr>.f");
-        transforms_.back()[10] = 1.0;
-        transforms_.back()[15] = 1.0;
-    });
+    for (const ptree::value_type& v : tile) {
+        if (v.first == "transform") {
+            transforms_.emplace_back(0);    // fill with 0
+            transforms_.back()[0] = v.second.get<double>("<xmlattr>.a");
+            transforms_.back()[1] = v.second.get<double>("<xmlattr>.b");
+            transforms_.back()[3] = v.second.get<double>("<xmlattr>.c");
+            transforms_.back()[4] = v.second.get<double>("<xmlattr>.d");
+            transforms_.back()[5] = v.second.get<double>("<xmlattr>.e");
+            transforms_.back()[7] = v.second.get<double>("<xmlattr>.f");
+            transforms_.back()[10] = 1.0;
+            transforms_.back()[15] = 1.0;
+        }
+    }
 }
 
 lemon::Vector<lemon::Array<double, 2>>& Tile::verticies() {

@@ -1,9 +1,6 @@
 
 #include "main.h"
 
-const std::string ARCH = "tilings/archimedeans.tl";
-const std::string HAN  = "tilings/hanbury.tl";
-
 Global g;
 
 // loads the xml file
@@ -12,11 +9,11 @@ void parseXML(const std::string file) {
     std::ifstream in(file);
     ptree tree;
     boost::property_tree::read_xml(in, tree);
-
-    const ptree& tilings = tree.get_child("tiling-library").get_child("tiling");
-    std::for_each(tilings.begin(), tilings.end(), [](const ptree::value_type& v){
-        std::cout << v.first << std::endl;
-    });
+    for (ptree::value_type& v : tree.get_child("tiling-library")) {
+        if (v.first == "tiling") {
+            g.tilings.emplace(v.second.get<std::string>("<xmlattr>.name"), v.second);
+        }
+    }
 }
 
 // glut display function
@@ -28,8 +25,9 @@ void displayFunc() {
 int main(int argc, char** argv) {
     g.windowWidth = 600;
     g.windowHeight = 600;
-
-    parseXML(HAN);
+    
+    parseXML("tilings/archimedeans.tl");
+    parseXML("tilings/hanbury.tl");
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);

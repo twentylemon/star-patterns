@@ -10,7 +10,12 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <lemon/collections.h>
 
+#include "Tiling.h"
+
 typedef struct glob {
+
+    lemon::Map<lemon::String, Tiling> tilings;
+
     int glutWindow;     // glut window id
     int windowWidth;    // width of glut window
     int windowHeight;   // height of glut window

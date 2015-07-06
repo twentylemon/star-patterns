@@ -19,6 +19,9 @@ public:
     // returns the name of this tiling
     const lemon::String& name() const;
 
+    // returns true if the two tilings are equal
+    bool operator==(const Tiling& rhs) const;
+
 private:
     // parses the ptree, the <tiling> tag in a xml file
     void parseTiling(const boost::property_tree::ptree& tiling);
