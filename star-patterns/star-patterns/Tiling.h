@@ -3,7 +3,6 @@
 #define TILING_H
 
 #include <iostream>
-#include <GL/glut.h>
 #include <boost/property_tree/ptree.hpp>
 #include <lemon/collections.h>
 
@@ -27,6 +26,12 @@ public:
     // writes this tiling into the svg file
     void writeTiling(std::ostream& svg, int width, int height) const;
 
+    // draws the star pattern
+    void drawStar(int width, int height, double angle) const;
+
+    // writes this tiling into the svg file
+    void writeStar(std::ostream& svg, int width, int height, double angle) const;
+
     // returns true if the two tilings are equal
     bool operator==(const Tiling& rhs) const;
 
@@ -39,6 +44,6 @@ private:
 
     lemon::String name_;        // name of this tiling
     lemon::Vector<Tile> tiles_; // the tiles
-    lemon::Vector<lemon::Array<double, 2>> translations_;   // translations to fill the plane
+    lemon::Vector<lemon::util::Point<2>> translations_; // translations to fill the plane
 };
 #endif

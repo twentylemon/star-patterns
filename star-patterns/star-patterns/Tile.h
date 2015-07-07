@@ -2,13 +2,11 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <cmath>
 #include <iostream>
-#include <GL/glut.h>
 
-#include <boost/math/constants/constants.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <lemon/collections.h>
+#include <lemon/util/Point.h>
 
 /*
     one of two shape formats are possible:
@@ -39,10 +37,10 @@ public:
     Tile(const boost::property_tree::ptree& tile);
 
     // returns the verticies
-    lemon::Vector<lemon::Array<double, 2>>& verticies();
+    lemon::Vector<lemon::util::Point<2>>& verticies();
 
     // returns the verticies
-    const lemon::Vector<lemon::Array<double, 2>>& verticies() const;
+    const lemon::Vector<lemon::util::Point<2>>& verticies() const;
 
     // returns the list of transformation matricies to apply before drawing
     lemon::Vector<lemon::Array<double, 16>>& transforms();
@@ -69,10 +67,13 @@ private:
     // adds a new vertex
     void addVertex(double x, double y);
 
+    // returns the last x coord added
     double lastX() const;
+
+    // returns the last y coord added
     double lastY() const;
 
-    lemon::Vector<lemon::Array<double, 2>> verticies_;      // verticies of the shape
+    lemon::Vector<lemon::util::Point<2>> verticies_;        // verticies of the shape
     lemon::Vector<lemon::Array<double, 16>> transforms_;    // transformation matricies
 };
 #endif

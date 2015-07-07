@@ -1,6 +1,7 @@
 
 
 #include "Tiling.h"
+#include <GL/glut_old.h>
 
 using boost::property_tree::ptree;
 
@@ -21,9 +22,7 @@ void Tiling::parseTiling(const ptree& tiling) {
     // translation vectors
     for (const ptree::value_type& v : tiling.get_child("translations")) {
         if (v.first == "vector") {
-            translations_.emplace_back();
-            translations_.back()[0] = v.second.get<double>("<xmlattr>.x");
-            translations_.back()[1] = v.second.get<double>("<xmlattr>.y");
+            translations_.emplace_back(v.second.get<double>("<xmlattr>.x"), v.second.get<double>("<xmlattr>.y"));
         }
     }
 
@@ -65,7 +64,14 @@ void Tiling::drawTiling(int width, int height, double x, double y, int dx, int d
     drawTiling(width, height, x-translations_[1][0], y-translations_[1][1], dx, dy-1, visited);
 }
 
-
 void Tiling::writeTiling(std::ostream& svg, int width, int height) const {
     tiles_.dump(svg);
+}
+
+
+
+void Tiling::drawStar(int width, int height, double angle) const {
+}
+
+void Tiling::writeStar(std::ostream& svg, int width, int height, double angle) const {
 }

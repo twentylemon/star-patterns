@@ -1,5 +1,9 @@
 
 
+#include <cmath>
+#include <GL/glut_old.h>
+#include <boost/math/constants/constants.hpp>
+
 #include "Tile.h"
 
 using boost::property_tree::ptree;
@@ -30,9 +34,7 @@ void Tile::parseShape(const ptree& tile) {
     else if (type == "polygon") {
         for (const ptree::value_type& v : shape) {
             if (v.first == "vertex") {
-                verticies_.emplace_back();
-                verticies_.back()[0] = v.second.get<double>("<xmlattr>.x");
-                verticies_.back()[1] = v.second.get<double>("<xmlattr>.y");
+                verticies_.emplace_back(v.second.get<double>("<xmlattr>.x"), v.second.get<double>("<xmlattr>.y"));
             }
         }
     }
@@ -49,15 +51,13 @@ void Tile::parseTransform(const ptree& tile) {
             transforms_.back()[5] = v.second.get<double>("<xmlattr>.e");
             transforms_.back()[13] = v.second.get<double>("<xmlattr>.f");
             transforms_.back()[10] = 1.0;
-            transforms_.back()[15] = 1.0;
+            transforms_.back()[15] = 1.0;   // note: opengl is column major
         }
     }
 }
 
 void Tile::addVertex(double x, double y) {
-    verticies_.emplace_back();
-    verticies_.back()[0] = x;
-    verticies_.back()[1] = y;
+    verticies_.emplace_back(x, y);
 }
 
 double Tile::lastX() const {
@@ -68,11 +68,11 @@ double Tile::lastY() const {
     return verticies_.back()[1];
 }
 
-lemon::Vector<lemon::Array<double, 2>>& Tile::verticies() {
+lemon::Vector<lemon::util::Point<2>>& Tile::verticies() {
     return verticies_;
 }
 
-const lemon::Vector<lemon::Array<double, 2>>& Tile::verticies() const {
+const lemon::Vector<lemon::util::Point<2>>& Tile::verticies() const {
     return verticies_;
 }
 
@@ -93,7 +93,7 @@ void Tile::draw() const {
         glPushMatrix();
         glMultMatrixd(matrix.data());
         glBegin(GL_LINE_LOOP);
-        verticies_.each([](const lemon::Array<double, 2>& point){
+        verticies_.each([](const lemon::util::Point<2>& point){
             glVertex2dv(point.data());
         });
         glEnd();
@@ -106,8 +106,8 @@ std::ostream& operator<<(std::ostream& svg, const Tile& tile) {
         svg << "<polygon transform=\"matrix(" <<
             matrix[0] << " " << matrix[1] << " " << matrix[4] << " " << matrix[5] << " " << matrix[12] << " " << matrix[13] <<
             ")\" points=\"";
-        tile.verticies().each([&svg](const lemon::Array<double, 2>& point){
-            svg << point[0] << "," << point[1] << " ";
+        tile.verticies().each([&svg](const lemon::util::Point<2>& point){
+            svg << point << " ";
         });
         svg << "\"/>" << std::endl;
     });

@@ -1,49 +1,54 @@
 
 #include "main.h"
+#include <boost/math/constants/constants.hpp>
 
 Global g;
 
-// loads the xml file
-void parseXML(const std::string file) {
-    using boost::property_tree::ptree;
-    std::ifstream in(file);
-    ptree tree;
-    boost::property_tree::read_xml(in, tree);
-    for (ptree::value_type& v : tree.get_child("tiling-library")) {
-        if (v.first == "tiling") {
-            g.tilings.emplace(v.second.get<std::string>("<xmlattr>.name"), v.second);
-        }
+// returns the angle in radians
+double to_rads(double degrees) {
+    return degrees * boost::math::constants::pi<double>() / 180.0;
+}
+
+// glut keyboard function
+void keyboardFunc(unsigned char key, int x, int y) {
+    switch (key) {
+    case 's':
+        save("../../output.svg");
+        break;
     }
 }
 
 // glut display function
 void displayFunc() {
-    std::string display = "4.8.8";
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glLoadIdentity();
+    glOrtho(0, g.width, g.height, 0, 0, 1);
+
     glColor3d(1.0, 1.0, 1.0);
-    g.tilings[display].drawTiling(g.width, g.height);
+    if (g.currentTiling >= 0 && g.currentTiling < (int)g.tilings.size()) {
+        if (g.displayTiling) {
+            g.tilings[g.currentTiling].drawTiling(g.width, g.height);
+        }
+        if (g.displayStar) {
+            g.tilings[g.currentTiling].drawStar(g.width, g.height, g.angle);
+        }
+    }
     glFlush();
-    
-    std::ofstream svg("../../output.svg");
-    svg << "<?xml version=\"1.0\"?>" << std::endl
-        << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">" << std::endl
-        << "<svg width=\"" << g.windowWidth << "\" height=\"" << g.windowHeight << "\" viewBox=\"-10 -10 20 20\" "
-        << "version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
-    g.tilings[display].writeTiling(svg, g.windowWidth, g.windowHeight);
-    svg << "</svg>" << std::endl;
-    svg.close();
-    
 }
 
+// entry point
 int main(int argc, char** argv) {
     g.windowWidth = 600;
     g.windowHeight = 600;
-
+    
     g.width = 20;
     g.height = 20;
-    
-    parseXML("tilings/archimedeans.tl");
-    parseXML("tilings/hanbury.tl");
+
+    g.currentTiling = 0;
+    g.displayTiling = true;
+    g.displayStar = true;
+    g.angle = to_rads(60.0);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
@@ -58,6 +63,12 @@ int main(int argc, char** argv) {
     glOrtho(0, g.width, g.height, 0, 0, 1);
 
     glutDisplayFunc(displayFunc);
+    glutKeyboardFunc(keyboardFunc);
+
+    initGLUI();
+
+    parseXML("tilings/archimedeans.tl");
+    parseXML("tilings/hanbury.tl");
 
     glutMainLoop();
     return 0;
