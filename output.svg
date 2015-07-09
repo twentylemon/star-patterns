@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="600" height="600" viewBox="-10 -10 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg">
-<polygon transform="matrix(1 0 0 1 0 0)" points="1.000000,-1.732051 1.000000,1.732051 -2.000000,0.000000 "/>
-<polygon transform="matrix(0.5 0.866025 -0.866025 0.5 2 0)" points="1.000000,-1.732051 1.000000,1.732051 -2.000000,0.000000 "/>
-
-</svg>
