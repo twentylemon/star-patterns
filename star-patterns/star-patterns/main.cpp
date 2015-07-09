@@ -1,13 +1,7 @@
 
 #include "main.h"
-#include <boost/math/constants/constants.hpp>
 
 Global g;
-
-// returns the angle in radians
-double to_rads(double degrees) {
-    return degrees * boost::math::constants::pi<double>() / 180.0;
-}
 
 // glut keyboard function
 void keyboardFunc(unsigned char key, int x, int y) {
@@ -27,12 +21,7 @@ void displayFunc() {
 
     glColor3d(1.0, 1.0, 1.0);
     if (g.currentTiling >= 0 && g.currentTiling < (int)g.tilings.size()) {
-        if (g.displayTiling) {
-            g.tilings[g.currentTiling].drawTiling(g.width, g.height);
-        }
-        if (g.displayStar) {
-            g.tilings[g.currentTiling].drawStar(g.width, g.height, g.angle);
-        }
+        g.tilings[g.currentTiling].draw(g.width, g.height);
     }
     glFlush();
 }
@@ -46,15 +35,25 @@ int main(int argc, char** argv) {
     g.height = 20;
 
     g.currentTiling = 0;
-    g.displayTiling = true;
-    g.displayStar = true;
-    g.angle = to_rads(60.0);
+    g.displayTiling = 1;
+    g.displayStar = 1;
+    g.angle = 60.0f;
+    g.interlace = 0;
+    
+    g.tile_stroke_color[0] = g.tile_stroke_color[1] = g.tile_stroke_color[2] = 0;
+    g.tile_fill_color[0] = g.tile_fill_color[1] = g.tile_fill_color[2] = 255;
+    g.tile_fill_transparent = 1;
+    g.tile_stroke_width = 0.125f;
+    g.star_stroke_color[0] = g.star_stroke_color[1] = g.star_stroke_color[2] = 0;
+    g.star_fill_color[0] = g.star_fill_color[1] = g.star_fill_color[2] = 127;
+    g.star_fill_transparent = 0;
+    g.star_stroke_width = 0.125f;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);
     glutInitWindowSize(g.windowWidth, g.windowHeight);
     glutInitWindowPosition(30, 30);
-    g.glutWindow = glutCreateWindow("star patterns");
+    g.glutWindow = glutCreateWindow("tiling");
 
     glClearColor(0, 0, 0, 1);
     glMatrixMode(GL_PROJECTION | GL_MATRIX_MODE);

@@ -21,16 +21,10 @@ public:
     const lemon::String& name() const;
 
     // draws the tiling to fill the screen from (0,0) to (width,height)
-    void drawTiling(int width, int height) const;
+    void draw(int width, int height) const;
 
     // writes this tiling into the svg file
-    void writeTiling(std::ostream& svg, int width, int height) const;
-
-    // draws the star pattern
-    void drawStar(int width, int height, double angle) const;
-
-    // writes this tiling into the svg file
-    void writeStar(std::ostream& svg, int width, int height, double angle) const;
+    void write(std::ostream& svg, int width, int height, int includeTile, int includeStar, float angle, int interlace) const;
 
     // returns true if the two tilings are equal
     bool operator==(const Tiling& rhs) const;
@@ -40,7 +34,12 @@ private:
     void parseTiling(const boost::property_tree::ptree& tiling);
 
     // draws the tiling to fill the screen from (x,y) to (width,height)
-    void drawTiling(int width, int height, double x, double y, int dx, int dy, lemon::Vector<std::pair<int,int>>& visited) const;
+    void draw(int width, int height, double x, double y, int dx, int dy, lemon::Vector<std::pair<int,int>>& visited) const;
+
+    void write(std::ostream& svg, int width, int height, double x, double y, int dx, int dy, lemon::Vector<std::pair<int,int>>& visited, int includeTile, int includeStar, float angle, int interlace) const;
+    void writeStar(std::ostream& svg, const Tile& tile, float angle, int interlace, int dx, int dy) const;
+
+    lemon::util::Point<2> rotateAndScale(const lemon::util::Point<2>& p, float angle, double scale, const lemon::util::Point<2>& pivot) const;
 
     lemon::String name_;        // name of this tiling
     lemon::Vector<Tile> tiles_; // the tiles

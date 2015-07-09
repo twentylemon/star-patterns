@@ -57,6 +57,9 @@ public:
     // writes this tile to the svg
     friend std::ostream& operator<<(std::ostream& svg, const Tile& tile);
 
+    static std::string svg_transform(const lemon::Array<double, 16>& matrix);
+    std::string to_string(std::string polyclass = "") const;
+
 private:
     // reads and populations this tiles verticies from the ptree
     void parseShape(const boost::property_tree::ptree& tile);

@@ -1,6 +1,7 @@
 
 
 #include <cmath>
+#include <sstream>
 #include <GL/glut_old.h>
 #include <boost/math/constants/constants.hpp>
 
@@ -103,13 +104,32 @@ void Tile::draw() const {
 
 std::ostream& operator<<(std::ostream& svg, const Tile& tile) {
     tile.transforms().each([&](const lemon::Array<double, 16>& matrix){
-        svg << "<polygon transform=\"matrix(" <<
-            matrix[0] << " " << matrix[1] << " " << matrix[4] << " " << matrix[5] << " " << matrix[12] << " " << matrix[13] <<
-            ")\" points=\"";
-        tile.verticies().each([&svg](const lemon::util::Point<2>& point){
-            svg << point << " ";
-        });
-        svg << "\"/>" << std::endl;
+        svg << "<polygon class=\"tile\" " << Tile::svg_transform(matrix) << " points=\"";
+        tile.verticies().dump(svg, " ");
+        svg << "\"/>";
     });
     return svg;
+}
+
+std::string Tile::to_string(std::string polyclass) const {
+    std::stringstream str;
+    transforms().each([&](const lemon::Array<double, 16>& matrix){
+        str << "<polygon ";
+        if (!polyclass.empty()) {
+            str << "class=\"" << polyclass << "\" ";
+        }
+        str << Tile::svg_transform(matrix) << " points=\"";
+        verticies().dump(str, " ");
+        str << "\"/>";
+    });
+    return str.str();
+}
+
+
+std::string Tile::svg_transform(const lemon::Array<double, 16>& matrix) {
+    std::stringstream str;
+    str << "transform=\"matrix("
+        << matrix[0] << " " << matrix[1] << " " << matrix[4] << " " << matrix[5] << " " << matrix[12] << " " << matrix[13]
+        << ")\"";
+    return str.str();
 }
