@@ -85,12 +85,27 @@ void Tiling::write(std::ostream& svg, int width, int height, double x, double y,
         return;
     }
     
+    /*
+    double w = translations_.fold([](double s, const Point& p){ return std::max(s, std::fabs(p[0])); }, 0.0);
+    double h = translations_.fold([](double s, const Point& p){ return std::max(s, std::fabs(p[1])); }, 0.0);
+    svg << "<defs>" << std::endl
+        << "  <pattern id=\"pattern\" x=\"0\" y=\"0\" width=\"" << w << "\" height=\"" << h << "\" patternUnits=\"userSpaceOnUse\">"
+        << std::endl << "    ";
+    if (includeTile != 0) {
+        tiles_.dump(svg, "");
+    }
+    if (includeStar != 0) {
+        tiles_.each([this,&svg,angle,interlace,dx,dy](const Tile& tile){
+            writeStar(svg, tile, angle, interlace, dx, dy);
+        });
+    }
+    svg << "  </pattern>" << std::endl << "</defs>" << std::endl
+        << "<rect x=\"0\" y=\"0\" width=\"" << width << "\" height=\"" << height << "\" fill=\"url(#pattern)\"/>" << std::endl;
+    */
     visited.emplace_back(dx, dy);
     svg << "<g transform=\"translate(" << x << " " << y << ")\">" << std::endl;
     if (includeTile != 0) {
-        tiles_.each([&svg](const Tile& tile){
-            svg << "  " << tile << std::endl;
-        });
+        tiles_.dump(svg, "");
     }
     if (includeStar != 0) {
         tiles_.each([this,&svg,angle,interlace,dx,dy](const Tile& tile){
@@ -98,7 +113,6 @@ void Tiling::write(std::ostream& svg, int width, int height, double x, double y,
         });
     }
     svg << "</g>" << std::endl;
-
     write(svg, width, height, x+translations_[0][0], y+translations_[0][1], dx+1, dy, visited, includeTile, includeStar, angle, interlace);
     write(svg, width, height, x-translations_[0][0], y-translations_[0][1], dx-1, dy, visited, includeTile, includeStar, angle, interlace);
     write(svg, width, height, x+translations_[1][0], y+translations_[1][1], dx, dy+1, visited, includeTile, includeStar, angle, interlace);
