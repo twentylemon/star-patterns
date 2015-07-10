@@ -41,6 +41,8 @@ private:
 
     lemon::util::Point<2> rotateAndScale(const lemon::util::Point<2>& p, float angle, double scale, const lemon::util::Point<2>& pivot) const;
 
+    void dump(std::ostream& svg, const lemon::Vector<lemon::util::Point<2>>& points, std::string css_class = "", std::string poly = "polygon") const;
+
     lemon::String name_;        // name of this tiling
     lemon::Vector<Tile> tiles_; // the tiles
     lemon::Vector<lemon::util::Point<2>> translations_; // translations to fill the plane

@@ -31,23 +31,31 @@ int main(int argc, char** argv) {
     g.windowWidth = 600;
     g.windowHeight = 600;
     
-    g.width = 20;
-    g.height = 20;
+    g.width = 10;
+    g.height = 10;
 
     g.currentTiling = 0;
-    g.displayTiling = 1;
+    g.displayTiling = 0;
     g.displayStar = 1;
     g.angle = 60.0f;
     g.interlace = 0;
     
-    g.tile_stroke_color[0] = g.tile_stroke_color[1] = g.tile_stroke_color[2] = 0;
-    g.tile_fill_color[0] = g.tile_fill_color[1] = g.tile_fill_color[2] = 255;
+    g.tile_stroke_color[0] = g.tile_stroke_color[1] = 0;
+    g.tile_stroke_color[2] = 255;
+    g.tile_fill_color.fill(255);
     g.tile_fill_transparent = 1;
     g.tile_stroke_width = 0.125f;
-    g.star_stroke_color[0] = g.star_stroke_color[1] = g.star_stroke_color[2] = 0;
-    g.star_fill_color[0] = g.star_fill_color[1] = g.star_fill_color[2] = 127;
+
+    g.bkgd_color.fill(255);
+
+    g.star_stroke_color.fill(0);
+    g.star_fill_color.fill(128);
     g.star_fill_transparent = 0;
-    g.star_stroke_width = 0.125f;
+    g.star_stroke_width = 0.1f;
+
+    g.ribbon_color.fill(0);
+    g.ribbon_color[0] = 255;
+    g.ribbon_size = 0.075f;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_SINGLE);

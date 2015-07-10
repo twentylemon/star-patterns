@@ -43,11 +43,14 @@ void initGLUI() {
     color_spinners(star_fill, g.star_fill_color);
     new GLUI_Checkbox(star_fill, "transparent", &g.star_fill_transparent);
     (new GLUI_Spinner(star, "stroke width", &g.star_stroke_width))->set_float_limits(0.0f, 1.0f);
+    color_spinners(new GLUI_Panel(star, "ribbon color"), g.ribbon_color);
+    (new GLUI_Spinner(star, "ribbon width", &g.ribbon_size))->set_float_limits(0.0f, 1.0f);
 
     glui->add_column();
     GLUI_Panel* etc = new GLUI_Panel(glui, "etc");
     new GLUI_Spinner(etc, "width", GLUI_SPINNER_INT, &g.width);
     new GLUI_Spinner(etc, "height", GLUI_SPINNER_INT, &g.height);
+    color_spinners(new GLUI_Panel(etc, "background color"), g.bkgd_color);
     new GLUI_Button(etc, "save svg", -1, save);
     saving = new GLUI_StaticText(etc, "");
     glui->set_main_gfx_window(g.glutWindow);
@@ -93,9 +96,13 @@ void save(std::string file) {
         << "version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">" << std::endl;
 
     svg << "<style type=\"text/css\"><![CDATA[" << std::endl
-        << "polygon.tile { stroke:" << rgb(g.tile_stroke_color) << ";fill:" << fill(g.tile_fill_color, g.tile_fill_transparent) << ";stroke-width:" << g.tile_stroke_width << "; }" << std::endl
-        << "polygon.star { stroke:" << rgb(g.star_stroke_color) << ";fill:" << fill(g.star_fill_color, g.star_fill_transparent) << ";stroke-width:" << g.star_stroke_width << "; }" << std::endl
+        << ".tile { stroke:" << rgb(g.tile_stroke_color) << ";fill:" << fill(g.tile_fill_color, g.tile_fill_transparent) << ";stroke-width:" << g.tile_stroke_width << "; }" << std::endl
+        << ".star { stroke:" << rgb(g.star_stroke_color) << ";fill:" << fill(g.star_fill_color, g.star_fill_transparent) << ";stroke-width:" << g.star_stroke_width << "; }" << std::endl
+        << ".ribbon { stroke:" << rgb(g.ribbon_color) << ";fill:transparent;stroke-width:" << (g.ribbon_size+g.star_stroke_width) << "; }" << std::endl
+        << ".interlace { stroke:" << rgb(g.star_stroke_color) << ";fill:transparent;stroke-width:" << g.star_stroke_width << "; }" << std::endl
+        << ".fill { stroke:none;stroke-width:0;fill:" << fill(g.star_fill_color, g.star_fill_transparent) << "; }" << std::endl
         << "]]></style>" << std::endl;
+    svg << "<rect x=\"-600\" y=\"-600\" width=\"1200\" height=\"1200\" fill=\"" << rgb(g.bkgd_color) << "\"/>" << std::endl;
 
     g.tilings[g.currentTiling].write(svg, g.width, g.height, g.displayTiling, g.displayStar, to_rads(g.angle), g.interlace);
     svg << "</svg>" << std::endl;

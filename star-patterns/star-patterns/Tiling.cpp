@@ -110,6 +110,7 @@ void Tiling::writeStar(std::ostream& svg, const Tile& tile, float angle, int int
     Point center = tile.verticies().sum().scale(1.0 / tile.verticies().size());
     tile.transforms().each([&svg,&tile,&center,angle,interlace,this,dx,dy,&id](const lemon::Array<double, 16>& matrix){
         lemon::Vector<Point> star;
+        lemon::Vector<lemon::Vector<Point>> ribbons;
         for (unsigned i = 0; i < tile.verticies().size(); i++) {
             const Point& p1 = tile.verticies()[i];
             const Point& p2 = tile.verticies()[(i+1) % tile.verticies().size()];
@@ -130,15 +131,55 @@ void Tiling::writeStar(std::ostream& svg, const Tile& tile, float angle, int int
             Point contact = rotateAndScale(p2, angle, scale, mid12);
             star.push_back(contact);
             star.push_back(mid23);
+            if (interlace) {
+                ribbons.emplace_back();
+                ribbons.back().push_back(rotateAndScale(p2, angle + PI, 1.0, mid12));
+                ribbons.back().push_back(contact);
+                ribbons.back().push_back(rotateAndScale(p2, PI - angle, 1.0, mid23));
+            }
         }
         
-        svg << "  <g " << Tile::svg_transform(matrix) << ">" << std::endl;
-        svg << "    <defs><clipPath id=\"" << dx << "-" << dy << "-" << id << "\"><polygon points=\"";
-        tile.verticies().dump(svg, " ");
-        svg << "\"/></clipPath></defs>" << std::endl;
-        svg << "    <polygon class=\"star\" clip-path=\"url(#" << dx << "-" << dy << "-" << id << ")\" points=\"";
-        star.dump(svg, " ");
-        svg << "\"/>" << std::endl << "  </g>" << std::endl;
+        // define the transformation group and clip path
+        svg << "  <defs><clipPath id=\"" << dx << "-" << dy << "-" << id << "\">";
+        dump(svg, tile.verticies());
+        svg << "</clipPath></defs>" << std::endl;
+        svg << "  <g " << Tile::svg_transform(matrix) << " clip-path=\"url(#" << dx << "-" << dy << "-" << id << ")\">" << std::endl << "    ";
         id++;
+
+        if (interlace) {
+            dump(svg, star, "fill");
+            ribbons.each([this,&svg](const lemon::Vector<Point>& ribbon){
+                dump(svg, ribbon, "ribbon", "polyline");
+                dump(svg, ribbon, "interlace", "polyline");
+            });
+            lemon::Vector<Point> clip;
+            clip.push_back(tile.verticies()[0]);
+            clip.push_back(tile.verticies()[1]);
+            clip.push_back(center);
+            svg << std::endl << "    <defs><clipPath id=\"" << dx << "-" << dy << "-" << id << "\" clip-path=\"url(#" << dx << "-" << dy << "-" << (id-1) << ")\">";
+            dump(svg, clip);
+            svg << "</clipPath></defs>" << std::endl;
+            svg << "    <g clip-path=\"url(#" << dx << "-" << dy << "-" << id << ")\">" << std::endl << "      ";
+            dump(svg, ribbons[0], "ribbon", "polyline");
+            dump(svg, ribbons[0], "interlace", "polyline");
+            svg << std::endl << "    </g>";
+            id++;
+        }
+        else {
+            dump(svg, star, "ribbon");
+            dump(svg, star, "star");
+        }
+        svg << std::endl << "  </g>" << std::endl;
     });
+}
+
+void Tiling::dump(std::ostream& svg, const lemon::Vector<Point>& points, std::string css_class, std::string poly) const {
+    if (css_class == "") {
+        svg << "<" << poly << " points=\"";
+    }
+    else {
+        svg << "<" << poly << " class=\"" << css_class << "\" points=\"";
+    }
+    points.dump(svg, " ");
+    svg << "\"/>";
 }
